@@ -421,17 +421,6 @@
     <div class="section" id="storeList" style="flex:1;overflow-y:auto;">
       <div class="product-list" id="storeProducts"></div>
     </div>
-    <div class="cart-bar">
-      <div style="display:flex;flex-direction:column;gap:4px;">
-        <span>🛒 Carrinho: <strong id="cartCount">0</strong> item(s)</span>
-        <div style="display:flex;align-items:center;gap:6px;font-size:14px;">
-          <span>Total:</span>
-          <strong id="cartTotal">0</strong>
-          <span class="chip chip-red" style="width:16px;height:16px;"></span>
-        </div>
-      </div>
-      <button class="btn-checkout" onclick="checkout()">Finalizar</button>
-    </div>
   </div>
 
   <!-- REGISTER -->
@@ -656,7 +645,6 @@ function renderStore() {
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
           ${priceLabel(p.redChips)}
-          <button class="btn-add-cart" onclick="addToCart(${p.id})">+ Adicionar</button>
         </div>
       </div>`;
   });
