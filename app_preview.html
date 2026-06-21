@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Meu App Android</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Roboto', sans-serif;
+    background: #1a1a2e;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  /* Phone frame */
+  .phone {
+    width: 390px;
+    height: 844px;
+    background: #fff;
+    border-radius: 50px;
+    box-shadow: 0 0 0 12px #111, 0 0 0 14px #333, 0 40px 80px rgba(0,0,0,.6);
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Status bar */
+  .status-bar {
+    height: 44px;
+    background: #6200ea;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+
+  /* App bar */
+  .app-bar {
+    height: 56px;
+    background: #6200ea;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    color: #fff;
+    font-size: 20px;
+    font-weight: 500;
+    box-shadow: 0 2px 4px rgba(0,0,0,.3);
+    flex-shrink: 0;
+    gap: 12px;
+  }
+  .app-bar .back-btn {
+    cursor: pointer;
+    font-size: 22px;
+    display: none;
+    user-select: none;
+  }
+  .app-bar .back-btn.visible { display: block; }
+
+  /* Screens */
+  .screen {
+    flex: 1;
+    overflow-y: auto;
+    display: none;
+    flex-direction: column;
+  }
+  .screen.active { display: flex; }
+
+  /* ── HOME SCREEN ── */
+  #home {
+    background: #f5f5f5;
+    padding: 24px 16px;
+    gap: 16px;
+  }
+
+  .welcome-card {
+    background: linear-gradient(135deg, #6200ea, #9c27b0);
+    border-radius: 16px;
+    padding: 24px;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+  .welcome-card h2 { font-size: 22px; margin-bottom: 6px; }
+  .welcome-card p { font-size: 14px; opacity: .85; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .menu-btn {
+    background: #fff;
+    border: none;
+    border-radius: 16px;
+    padding: 24px 16px;
+    cursor: pointer;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,.1);
+    transition: transform .15s, box-shadow .15s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .menu-btn:active { transform: scale(.96); box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+  .menu-btn .icon { font-size: 36px; }
+  .menu-btn .label { font-size: 13px; font-weight: 600; color: #333; line-height: 1.3; }
+  .menu-btn .sub { font-size: 11px; color: #888; margin-top: 2px; }
+
+  .btn-store  .icon { color: #e91e63; }
+  .btn-prod   .icon { color: #ff9800; }
+  .btn-curr   .icon { color: #2196f3; }
+  .btn-calc   .icon { color: #4caf50; }
+
+  /* ── SHARED ── */
+  .section {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.08);
+  }
+  .card h3 { font-size: 15px; color: #444; margin-bottom: 12px; font-weight: 600; }
+
+  input, select {
+    width: 100%;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 15px;
+    outline: none;
+    transition: border-color .2s;
+    font-family: inherit;
+  }
+  input:focus, select:focus { border-color: #6200ea; }
+
+  label { font-size: 13px; color: #666; display: block; margin-bottom: 4px; }
+
+  .field { display: flex; flex-direction: column; gap: 4px; }
+
+  .btn-primary {
+    background: #6200ea;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    transition: background .2s;
+    font-family: inherit;
+  }
+  .btn-primary:hover { background: #5000c8; }
+
+  .btn-danger {
+    background: #e53935;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s;
+    font-family: inherit;
+  }
+  .btn-danger:hover { background: #c62828; }
+
+  .toast {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #323232;
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .3s;
+    z-index: 999;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; }
+
+  /* ── STORE ── */
+  #store { background: #f5f5f5; }
+
+  .product-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .product-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.08);
+  }
+  .product-icon { font-size: 28px; }
+  .product-info { flex: 1; }
+  .product-name { font-weight: 600; font-size: 15px; color: #222; }
+  .product-desc { font-size: 12px; color: #888; margin-top: 2px; }
+  .product-price { font-weight: 700; font-size: 16px; color: #6200ea; }
+
+  .btn-add-cart {
+    background: #6200ea;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background .2s;
+  }
+  .btn-add-cart:hover { background: #5000c8; }
+
+  .cart-bar {
+    background: #6200ea;
+    color: #fff;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .cart-bar span { font-size: 14px; }
+  .cart-bar strong { font-size: 16px; }
+  .btn-checkout {
+    background: #fff;
+    color: #6200ea;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  /* ── REGISTER ── */
+  #register { background: #f5f5f5; }
+
+  .reg-list { display: flex; flex-direction: column; gap: 8px; }
+  .reg-item {
+    background: #fff;
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.07);
+  }
+  .reg-item-icon { font-size: 22px; }
+  .reg-item-info { flex: 1; }
+  .reg-item-name { font-weight: 600; font-size: 14px; color: #222; }
+  .reg-item-price { font-size: 13px; color: #6200ea; }
+
+  /* ── FICHAS (chip tokens) ── */
+  .chip {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid rgba(0,0,0,.25);
+    vertical-align: middle;
+    box-shadow: inset 0 -2px 0 rgba(0,0,0,.2), 0 1px 3px rgba(0,0,0,.3);
+    flex-shrink: 0;
+  }
+  .chip-red   { background: radial-gradient(circle at 35% 35%, #ff6b6b, #c0392b); }
+  .chip-white { background: radial-gradient(circle at 35% 35%, #fff, #ccc); border-color: #bbb; }
+  .chip-blue  { background: radial-gradient(circle at 35% 35%, #5dade2, #1a5276); }
+  .chip-green { background: radial-gradient(circle at 35% 35%, #58d68d, #1e8449); }
+
+  .price-chips {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 700;
+    font-size: 15px;
+    color: #333;
+  }
+
+  /* ── CURRENCY (fichas) ── */
+  #currency { background: #f5f5f5; }
+
+  /* equivalence cards */
+  .equiv-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.08);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .equiv-card h3 { font-size: 15px; color: #444; font-weight: 600; }
+
+  .equiv-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #fafafa;
+    border-radius: 10px;
+    padding: 12px 14px;
+    border: 1px solid #f0f0f0;
+  }
+  .equiv-chips { display: flex; gap: 4px; flex-wrap: wrap; }
+  .equiv-eq { font-size: 18px; color: #888; font-weight: 300; margin: 0 2px; }
+  .equiv-arrow { font-size: 20px; color: #aaa; }
+  .equiv-label { font-size: 13px; color: #666; flex: 1; }
+
+  /* ── CALCULATOR ── */
+  #calculator { background: #111; flex-direction: column; }
+
+  .calc-display {
+    background: #111;
+    color: #fff;
+    padding: 20px 20px 10px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .calc-expr { font-size: 18px; color: #aaa; min-height: 24px; word-break: break-all; }
+  .calc-result { font-size: 48px; font-weight: 300; margin-top: 4px; word-break: break-all; }
+
+  .calc-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: #222;
+    flex: 1;
+  }
+
+  .calc-btn {
+    border: none;
+    padding: 0;
+    font-size: 22px;
+    font-weight: 400;
+    cursor: pointer;
+    font-family: inherit;
+    transition: filter .1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60px;
+  }
+  .calc-btn:active { filter: brightness(1.3); }
+  .calc-btn.num  { background: #1e1e1e; color: #fff; }
+  .calc-btn.op   { background: #292929; color: #ff9500; }
+  .calc-btn.fn   { background: #333; color: #fff; }
+  .calc-btn.eq   { background: #ff9500; color: #fff; }
+  .calc-btn.zero { grid-column: span 2; }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <!-- Status bar -->
+  <div class="status-bar">
+    <span>21:00</span>
+    <span>⚡ 📶 🔋</span>
+  </div>
+
+  <!-- App bar -->
+  <div class="app-bar">
+    <span class="back-btn" id="backBtn" onclick="goHome()">←</span>
+    <span id="appTitle">Meu App</span>
+  </div>
+
+  <!-- HOME -->
+  <div id="home" class="screen active">
+    <div class="welcome-card">
+      <h2>Bem-vindo! 👋</h2>
+      <p>Escolha uma das opções abaixo para começar.</p>
+    </div>
+    <div class="grid">
+      <button class="menu-btn btn-store" onclick="navigate('store','🛍️ Lojinha')">
+        <span class="icon">🛍️</span>
+        <span class="label">Lojinha</span>
+        <span class="sub">Produtos à venda</span>
+      </button>
+      <button class="menu-btn btn-prod" onclick="navigate('register','📦 Produtos')">
+        <span class="icon">📦</span>
+        <span class="label">Registrar / Excluir Produto</span>
+        <span class="sub">Gerenciar catálogo</span>
+      </button>
+      <button class="menu-btn btn-curr" onclick="navigate('currency','💱 Moedas')">
+        <span class="icon">💱</span>
+        <span class="label">Equivalência de Moedas</span>
+        <span class="sub">Converter câmbio</span>
+      </button>
+      <button class="menu-btn btn-calc" onclick="navigate('calculator','🧮 Calculadora')">
+        <span class="icon">🧮</span>
+        <span class="label">Calculadora</span>
+        <span class="sub">Operações básicas</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- STORE -->
+  <div id="store" class="screen">
+    <div class="section" id="storeList" style="flex:1;overflow-y:auto;">
+      <div class="product-list" id="storeProducts"></div>
+    </div>
+    <div class="cart-bar">
+      <div style="display:flex;flex-direction:column;gap:4px;">
+        <span>🛒 Carrinho: <strong id="cartCount">0</strong> item(s)</span>
+        <div style="display:flex;align-items:center;gap:6px;font-size:14px;">
+          <span>Total:</span>
+          <strong id="cartTotal">0</strong>
+          <span class="chip chip-red" style="width:16px;height:16px;"></span>
+        </div>
+      </div>
+      <button class="btn-checkout" onclick="checkout()">Finalizar</button>
+    </div>
+  </div>
+
+  <!-- REGISTER -->
+  <div id="register" class="screen">
+    <div class="section">
+      <div class="card">
+        <h3>➕ Novo Produto</h3>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div class="field">
+            <label>Nome do produto</label>
+            <input id="regName" type="text" placeholder="Ex: Camiseta Azul">
+          </div>
+          <div class="field">
+            <label>Preço (fichas vermelhas 🔴)</label>
+            <input id="regPrice" type="number" placeholder="Ex: 10" step="1" min="1">
+          </div>
+          <div class="field">
+            <label>Emoji / Ícone</label>
+            <input id="regIcon" type="text" placeholder="Ex: 👕" maxlength="2">
+          </div>
+          <button class="btn-primary" onclick="registerProduct()">Cadastrar Produto</button>
+        </div>
+      </div>
+      <div class="card">
+        <h3>📋 Produtos Cadastrados</h3>
+        <div class="reg-list" id="regList">
+          <p style="color:#aaa;font-size:13px;text-align:center;padding:10px 0;">Nenhum produto cadastrado ainda.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CURRENCY (Equivalência de Fichas) -->
+  <div id="currency" class="screen">
+    <div class="section">
+
+      <!-- Cabeçalho visual -->
+      <div style="background:linear-gradient(135deg,#7b1fa2,#4a148c);border-radius:14px;padding:20px;color:#fff;text-align:center;">
+        <div style="font-size:32px;margin-bottom:6px;">🎰</div>
+        <div style="font-size:18px;font-weight:700;">Equivalência de Fichas</div>
+        <div style="font-size:13px;opacity:.8;margin-top:4px;">Entenda o valor de cada ficha</div>
+      </div>
+
+      <!-- Fichas individuais -->
+      <div class="equiv-card">
+        <h3>🎨 Tipos de Ficha</h3>
+
+        <div class="equiv-row">
+          <span class="chip chip-red" style="width:28px;height:28px;"></span>
+          <div class="equiv-label">
+            <strong style="color:#c0392b;">Ficha Vermelha</strong><br>
+            <span style="font-size:12px;color:#888;">Menor valor — unidade base</span>
+          </div>
+          <span style="font-size:22px;font-weight:700;color:#c0392b;">×1</span>
+        </div>
+
+        <div class="equiv-row">
+          <span class="chip chip-white" style="width:28px;height:28px;"></span>
+          <div class="equiv-label">
+            <strong style="color:#555;">Ficha Branca</strong><br>
+            <span style="font-size:12px;color:#888;">Vale 5 fichas vermelhas</span>
+          </div>
+          <div class="price-chips">×5 <span class="chip chip-red"></span></div>
+        </div>
+
+        <div class="equiv-row">
+          <span class="chip chip-blue" style="width:28px;height:28px;"></span>
+          <div class="equiv-label">
+            <strong style="color:#1a5276;">Ficha Azul</strong><br>
+            <span style="font-size:12px;color:#888;">Vale 5 fichas brancas</span>
+          </div>
+          <div class="price-chips">×5 <span class="chip chip-white"></span></div>
+        </div>
+
+        <div class="equiv-row">
+          <span class="chip chip-green" style="width:28px;height:28px;"></span>
+          <div class="equiv-label">
+            <strong style="color:#1e8449;">Ficha Verde</strong><br>
+            <span style="font-size:12px;color:#888;">Vale 5 fichas azuis</span>
+          </div>
+          <div class="price-chips">×5 <span class="chip chip-blue"></span></div>
+        </div>
+      </div>
+
+      <!-- Tabela de equivalência total -->
+      <div class="equiv-card">
+        <h3>📊 Em fichas vermelhas</h3>
+
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#fff5f5;border-radius:8px;border-left:4px solid #c0392b;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="chip chip-red" style="width:22px;height:22px;"></span>
+              <span>1 Vermelha</span>
+            </div>
+            <strong style="color:#c0392b;">= 1 🔴</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#fafafa;border-radius:8px;border-left:4px solid #bbb;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="chip chip-white" style="width:22px;height:22px;"></span>
+              <span>1 Branca</span>
+            </div>
+            <strong style="color:#555;">= 5 🔴</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#eaf4fb;border-radius:8px;border-left:4px solid #1a5276;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="chip chip-blue" style="width:22px;height:22px;"></span>
+              <span>1 Azul</span>
+            </div>
+            <strong style="color:#1a5276;">= 25 🔴</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#eafaf1;border-radius:8px;border-left:4px solid #1e8449;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="chip chip-green" style="width:22px;height:22px;"></span>
+              <span>1 Verde</span>
+            </div>
+            <strong style="color:#1e8449;">= 125 🔴</strong>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CALCULATOR -->
+  <div id="calculator" class="screen">
+    <div class="calc-display">
+      <div class="calc-expr" id="calcExpr"></div>
+      <div class="calc-result" id="calcResult">0</div>
+    </div>
+    <div class="calc-grid">
+      <button class="calc-btn fn" onclick="calcFn('AC')">AC</button>
+      <button class="calc-btn fn" onclick="calcFn('+/-')">+/-</button>
+      <button class="calc-btn fn" onclick="calcFn('%')">%</button>
+      <button class="calc-btn op" onclick="calcOp('÷')">÷</button>
+
+      <button class="calc-btn num" onclick="calcNum('7')">7</button>
+      <button class="calc-btn num" onclick="calcNum('8')">8</button>
+      <button class="calc-btn num" onclick="calcNum('9')">9</button>
+      <button class="calc-btn op" onclick="calcOp('×')">×</button>
+
+      <button class="calc-btn num" onclick="calcNum('4')">4</button>
+      <button class="calc-btn num" onclick="calcNum('5')">5</button>
+      <button class="calc-btn num" onclick="calcNum('6')">6</button>
+      <button class="calc-btn op" onclick="calcOp('−')">−</button>
+
+      <button class="calc-btn num" onclick="calcNum('1')">1</button>
+      <button class="calc-btn num" onclick="calcNum('2')">2</button>
+      <button class="calc-btn num" onclick="calcNum('3')">3</button>
+      <button class="calc-btn op" onclick="calcOp('+')">+</button>
+
+      <button class="calc-btn num zero" onclick="calcNum('0')">0</button>
+      <button class="calc-btn num" onclick="calcNum('.')">.</button>
+      <button class="calc-btn eq" onclick="calcEqual()">=</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ──────────────────────────────────────────────
+// NAVIGATION
+// ──────────────────────────────────────────────
+function navigate(screenId, title) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(screenId).classList.add('active');
+  document.getElementById('appTitle').textContent = title;
+  document.getElementById('backBtn').classList.add('visible');
+  if (screenId === 'store') renderStore();
+  // currency screen is static — nothing to init
+}
+
+function goHome() {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('home').classList.add('active');
+  document.getElementById('appTitle').textContent = 'Meu App';
+  document.getElementById('backBtn').classList.remove('visible');
+}
+
+// ──────────────────────────────────────────────
+// TOAST
+// ──────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ──────────────────────────────────────────────
+// STORE & REGISTER
+// ──────────────────────────────────────────────
+// chips: preço em fichas vermelhas (unidade base)
+// 1 branca = 5 vermelhas | 1 azul = 25 vermelhas | 1 verde = 125 vermelhas
+let products = [
+  { id:1, name:'Hot Wheels', redChips:15, icon:'🚗', desc:'Carrinho colecionável' },
+  { id:2, name:'Kinder Ovo', redChips:4,  icon:'🍫', desc:'Chocolate surpresa' },
+];
+let nextId = 3;
+let cart = [];
+
+function chipBadge(n, color) {
+  const cls = { red:'chip-red', white:'chip-white', blue:'chip-blue', green:'chip-green' }[color];
+  return `<span class="chip ${cls}" style="width:16px;height:16px;display:inline-block;"></span>`;
+}
+
+function priceLabel(redChips) {
+  return `<div class="price-chips">${redChips} × ${chipBadge(redChips,'red')}</div>`;
+}
+
+function renderStore() {
+  const list = document.getElementById('storeProducts');
+  list.innerHTML = '';
+  products.forEach(p => {
+    list.innerHTML += `
+      <div class="product-card">
+        <span class="product-icon">${p.icon}</span>
+        <div class="product-info">
+          <div class="product-name">${p.name}</div>
+          <div class="product-desc">${p.desc || ''}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+          ${priceLabel(p.redChips)}
+          <button class="btn-add-cart" onclick="addToCart(${p.id})">+ Adicionar</button>
+        </div>
+      </div>`;
+  });
+  updateCartBar();
+}
+
+function addToCart(id) {
+  const p = products.find(x => x.id === id);
+  cart.push(p);
+  updateCartBar();
+  showToast(`${p.icon} ${p.name} adicionado!`);
+}
+
+function updateCartBar() {
+  document.getElementById('cartCount').textContent = cart.length;
+  const total = cart.reduce((s, p) => s + p.redChips, 0);
+  document.getElementById('cartTotal').textContent = total;
+}
+
+function checkout() {
+  if (cart.length === 0) { showToast('Carrinho vazio!'); return; }
+  const total = cart.reduce((s, p) => s + p.redChips, 0);
+  showToast(`✅ Compra finalizada! Total: ${total} fichas vermelhas`);
+  cart = [];
+  updateCartBar();
+}
+
+function registerProduct() {
+  const name = document.getElementById('regName').value.trim();
+  const chips = parseInt(document.getElementById('regPrice').value);
+  const icon = document.getElementById('regIcon').value.trim() || '📦';
+  if (!name) { showToast('Informe o nome do produto.'); return; }
+  if (isNaN(chips) || chips <= 0) { showToast('Informe um preço em fichas vermelhas.'); return; }
+  products.push({ id: nextId++, name, redChips: chips, icon, desc: '' });
+  document.getElementById('regName').value = '';
+  document.getElementById('regPrice').value = '';
+  document.getElementById('regIcon').value = '';
+  renderRegList();
+  showToast(`✅ "${name}" cadastrado!`);
+}
+
+function deleteProduct(id) {
+  const p = products.find(x => x.id === id);
+  products = products.filter(x => x.id !== id);
+  renderRegList();
+  showToast(`🗑️ "${p.name}" removido!`);
+}
+
+function renderRegList() {
+  const list = document.getElementById('regList');
+  if (products.length === 0) {
+    list.innerHTML = '<p style="color:#aaa;font-size:13px;text-align:center;padding:10px 0;">Nenhum produto cadastrado.</p>';
+    return;
+  }
+  list.innerHTML = products.map(p => `
+    <div class="reg-item">
+      <span class="reg-item-icon">${p.icon}</span>
+      <div class="reg-item-info">
+        <div class="reg-item-name">${p.name}</div>
+        <div class="reg-item-price" style="display:flex;align-items:center;gap:4px;">
+          ${p.redChips} × <span class="chip chip-red" style="width:14px;height:14px;"></span>
+        </div>
+      </div>
+      <button class="btn-danger" onclick="deleteProduct(${p.id})">🗑️</button>
+    </div>`).join('');
+}
+renderRegList();
+
+// ──────────────────────────────────────────────
+// CURRENCY screen — apenas exibição estática de fichas
+// (nada a calcular; o HTML já está fixo)
+// ──────────────────────────────────────────────
+
+// ──────────────────────────────────────────────
+// CALCULATOR
+// ──────────────────────────────────────────────
+let calcCurrent = '0';
+let calcExpr = '';
+let calcOpr = null;
+let calcPrev = null;
+let calcJustEvaled = false;
+
+function updateCalcDisplay() {
+  document.getElementById('calcResult').textContent = calcCurrent;
+  document.getElementById('calcExpr').textContent = calcExpr;
+}
+
+function calcNum(n) {
+  if (calcJustEvaled) { calcCurrent = ''; calcExpr = ''; calcJustEvaled = false; }
+  if (n === '.' && calcCurrent.includes('.')) return;
+  if (calcCurrent === '0' && n !== '.') calcCurrent = n;
+  else calcCurrent += n;
+  updateCalcDisplay();
+}
+
+function calcOp(op) {
+  calcJustEvaled = false;
+  if (calcPrev !== null && calcOpr) {
+    const res = applyOp(calcPrev, parseFloat(calcCurrent), calcOpr);
+    calcCurrent = String(res);
+    calcPrev = res;
+  } else {
+    calcPrev = parseFloat(calcCurrent);
+  }
+  calcOpr = op;
+  calcExpr = `${calcPrev} ${op}`;
+  calcCurrent = '0';
+  updateCalcDisplay();
+}
+
+function calcFn(fn) {
+  if (fn === 'AC') { calcCurrent='0'; calcExpr=''; calcOpr=null; calcPrev=null; calcJustEvaled=false; }
+  else if (fn === '+/-') calcCurrent = String(-parseFloat(calcCurrent));
+  else if (fn === '%') calcCurrent = String(parseFloat(calcCurrent)/100);
+  updateCalcDisplay();
+}
+
+function calcEqual() {
+  if (calcOpr === null || calcPrev === null) return;
+  const res = applyOp(calcPrev, parseFloat(calcCurrent), calcOpr);
+  calcExpr = `${calcPrev} ${calcOpr} ${calcCurrent} =`;
+  calcCurrent = String(parseFloat(res.toFixed(10)));
+  calcOpr = null; calcPrev = null; calcJustEvaled = true;
+  updateCalcDisplay();
+}
+
+function applyOp(a, b, op) {
+  if (op === '+') return a + b;
+  if (op === '−') return a - b;
+  if (op === '×') return a * b;
+  if (op === '÷') return b !== 0 ? a / b : 0;
+  return b;
+}
+</script>
+</body>
+</html>
