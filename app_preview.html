@@ -3,7 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Meu App Android</title>
+<title>Lojinha do Tuts</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#6200ea">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Lojinha do Tuts">
+<link rel="apple-touch-icon" href="icon-192.png">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -413,15 +419,11 @@
   <!-- App bar -->
   <div class="app-bar">
     <span class="back-btn" id="backBtn" onclick="goHome()">←</span>
-    <span id="appTitle">Meu App</span>
+    <span id="appTitle">Lojinha do Tuts</span>
   </div>
 
   <!-- HOME -->
   <div id="home" class="screen active">
-    <div class="welcome-card">
-      <h2>Bem-vindo! 👋</h2>
-      <p>Escolha uma das opções abaixo para começar.</p>
-    </div>
     <div class="grid">
       <button class="menu-btn btn-store" onclick="navigate('store','🛍️ Lojinha')">
         <span class="icon">🛍️</span>
@@ -618,7 +620,7 @@ function navigate(screenId, title) {
 function goHome() {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('home').classList.add('active');
-  document.getElementById('appTitle').textContent = 'Meu App';
+  document.getElementById('appTitle').textContent = 'Lojinha do Tuts';
   document.getElementById('backBtn').classList.remove('visible');
 }
 
@@ -808,6 +810,11 @@ historicoRef.orderBy('date', 'desc').onSnapshot(snapshot => {
 }, err => {
   console.error('Firestore history error:', err);
 });
+
+// Registrar Service Worker (PWA)
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js');
+}
 </script>
 </body>
 </html>
